@@ -1,0 +1,160 @@
+import random
+import os
+import sys
+
+def clear_screen():
+    # Clear terminal screen for Windows and Unix
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+def display_hangman(attempts):
+    stages = [
+        """
+           ------
+           |    |
+           |    O
+           |   /|\\
+           |   / \\
+           |
+        """,
+        """
+           ------
+           |    |
+           |    O
+           |   /|\\
+           |   /
+           |
+        """,
+        """
+           ------
+           |    |
+           |    O
+           |   /|
+           |
+           |
+        """,
+        """
+           ------
+           |    |
+           |    O
+           |    |
+           |
+           |
+        """,
+        """
+           ------
+           |    |
+           |    O
+           |
+           |
+           |
+        """,
+        """
+           ------
+           |    |
+           |
+           |
+           |
+           |
+        """,
+        """
+           ------
+           |
+           |
+           |
+           |
+           |
+        """,
+    ]
+    return stages[attempts]
+
+# Initial word list
+wordList = ["glove", "cut", "patient", "peel", "soak", "collapse", "multiply", "color","advice", "available","attract", "evening","pin", "cat","stick" ]
+
+def prompt_add_words():
+    added = False
+    while True:
+        add_word = input("Do you want to add a word to the list? (yes/no/exit): ").strip().lower()
+        if add_word == 'yes':
+            new_word = input("Enter the word to add: ").strip().lower()
+            if new_word:
+                wordList.append(new_word)
+                added = True
+                print(f"Word '{new_word}' added to the list.\n")
+            else:
+                print("Please enter a valid word.\n")
+        elif add_word == 'no':
+            return added
+        elif add_word == 'exit':
+            print("\nExiting the game. Goodbye!\n")
+            sys.exit()
+        else:
+            print("Please answer with 'yes', 'no', or 'exit'.\n")
+
+def prompt_ready():
+    while True:
+        ready = input("Ready? (yes/no/exit): ").strip().lower()
+        if ready == 'yes':
+            return True
+        elif ready == 'no':
+            return False
+        elif ready == 'exit':
+            print("\nExiting the game. Goodbye!\n")
+            sys.exit()
+        else:
+            print("Please answer with 'yes', 'no', or 'exit'.\n")
+
+def main():
+    print("\nWelcome to Hangman!\n")
+    words_added = prompt_add_words()
+
+    # If no words were added, show the word list until ready is yes
+    if not words_added:
+        while True:
+            print("\nAvailable words to guess:\n")
+            # Print words in a styled manner with good spacing
+            for idx, w in enumerate(wordList, 1):
+                print(f"  {idx}. {w}")
+            print()
+            if prompt_ready():
+                break
+            else:
+                print("Okay, take your time.\n")
+
+    clear_screen()
+
+    word = random.choice(wordList)
+    guessedWord = ['_'] * len(word)
+    attempts = 6  # max wrong attempts
+
+    while attempts > 0:
+        print(display_hangman(attempts))
+        print("\nCurrent word: " + ' '.join(guessedWord))
+        guess = input("Guess a letter: ").strip().lower()
+
+        if len(guess) != 1 or not guess.isalpha():
+            print("Please enter a single letter (a-z).\n")
+            continue
+
+        if guess in guessedWord:
+            print(f"You already guessed the letter '{guess}'. Try another one.\n")
+            continue
+
+        if guess in word:
+            for i in range(len(word)):
+                if word[i] == guess:
+                    guessedWord[i] = guess
+            print("Great guess!\n")
+        else:
+            attempts -= 1
+            print("Wrong guess! Attempts left: " + str(attempts) + "\n")
+
+        if '_' not in guessedWord:
+            print("\nCongratulations!! You guessed the word: " + word + "\n")
+            break
+    else:
+        print(display_hangman(attempts))
+        print("\nYou've run out of attempts! The word was: " + word + "\n")
+
+if __name__ == "__main__":
+    main()
+
